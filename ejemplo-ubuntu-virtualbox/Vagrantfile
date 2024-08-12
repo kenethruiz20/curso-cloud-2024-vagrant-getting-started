@@ -1,6 +1,29 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/lunar64"
-  config.vm.provider :virtualbox do |vb|
-    vb.gui = true
-  end
+  # Especifica la box que deseas utilizar
+  config.vm.box = "ubuntu/bionic64"  # Esto usa Ubuntu 18.04 (Bionic Beaver)
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # Actualizar repositorio de paquetes y la caché
+    sudo apt-get update
+
+    # Instalar paquetes necesarios para Docker
+    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+    # Añadir la clave GPG oficial de Docker
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+    # Añadir el repositorio de Docker a las fuentes de APT
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+    # Actualizar repositorio de paquetes con el repositorio de Docker añadido
+    sudo apt-get update
+
+    # Instalar Docker
+    sudo apt-get install -y docker-ce
+
+    # Habilitar e iniciar el servicio de Docker
+    sudo systemctl enable docker
+    sudo systemctl start docker
+  SHELL
 end
+
